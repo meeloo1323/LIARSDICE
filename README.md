@@ -1,1 +1,1 @@
-# Liar-DIce
+# LIARSDICE
