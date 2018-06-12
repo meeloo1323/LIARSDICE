@@ -14,7 +14,7 @@ import java.util.Scanner;
 
 public class DiceGame {
 	
-	public void main(String[] args) 
+	public static void main(String[] args) 
 	{
 		
 		Scanner console= new Scanner(System.in);
@@ -41,48 +41,79 @@ public class DiceGame {
 		
 		System.out.println("What is your name?");
 		Cup player = new Cup(console.nextLine());
-		
-		player.roll();
-		player.show();
-		
 		Cup computer = new Cup();
-		computer.roll();
-		int i=0;
+		
 		int amt=0;
 		int value=0;
+		int called = 1; //1: player was right, 2: computer was right, 0: nothing was called and it's the computer's turn, 3: nothing was called and it's the player's turn
 		
 		// basic game loop
 		while(player.getAmt()>0 && computer.getAmt()>0) 
 		{
 			// the overarching if-else and int i here is supposed to alternate which player's turn it is (even for human player, odd for comp)
 			// this allows human player to call when it's their turn
-			if(i%2==0) 
+			if(called%2==1) 
 			{
+				if (called!=3)
+				{
+					player.roll();
+					computer.roll();
+					amt=0;
+					value=0;
+				}
+				player.show();
 				System.out.println(player.getName()+", what is your next call? Enter it in the form 'amt, value.'");
-				String[] call = console.nextLine().split(",");
+				
+				String input;
+				String call[];
+				while (true)
+				{
+					input = console.nextLine();
+					if (!validInt(input)) 
+						System.out.println("Not a valid call!");
+					else if (!validBet(amt,value,Integer.parseInt(input.split(", ")[0]), Integer.parseInt(input.split(", ")[1])))
+					{
+						System.out.println("Not a valid call! Your call has to have a higher value or amount");
+					}
+					else break;
+				}
+				call = input.split(", ");
 				amt = Integer.parseInt(call[0]);
 				value = Integer.parseInt(call[1]);
-				// 20% of the time, the computer will challenge your call
-				if (Math.random()<0.2)
+
+				//Using a rough probability finder, call out a player
+				if (probability(player, computer, amt, value)<Math.random() && probability(player, computer, amt, value)<0.1)
 				{
 					System.out.println("Your call has been challenged!");
 					if(checkCall(amt, value, player, computer))
 					{
 						computer.removeDie();
 						System.out.println("Nice! One die deducted from computer player- it now has "+computer.getAmt()+" dice left.");
+						called = 1;
 					}
 					else
 					{ 
 						player.removeDie();
 						System.out.println("Sorry, you were wrong. One die deducted- you now have "+player.getAmt()+" dice left.");
+						called = 2;
 					}
 				}
+				else
+					called = 0;
 			}
 			
 			
 			// this has the computer make a call for it's turn
 			else 
 			{
+				if (called!=0)
+				{
+					player.roll();
+					computer.roll();
+					player.show();
+					amt=0;
+					value=0;
+				}
 				if (value==6)
 				{
 					amt++;
@@ -112,17 +143,20 @@ public class DiceGame {
 					{
 						player.removeDie();
 						System.out.println("Sorry, you were wrong. One die deducted- you now have "+player.getAmt()+" dice left.");
+						called = 2;
 					}
 					else
 					{ 
 						computer.removeDie();
 						System.out.println("Nice! One die deducted from computer player- it now has "+computer.getAmt()+" dice left.");
+						called = 1;
 					}
 				}
-				
+				else
+					called = 3;
 			}
-			i++;
 		}
+		
 		if (player.getAmt()==0) {
 			System.out.println("Sorry, you lost this game.");
 		}
@@ -134,7 +168,7 @@ public class DiceGame {
 	}
 	
 	// if the current call is challenged, this checks the call's validity- true for valid call, false for bluff
-	public boolean checkCall (int amt, int value, Cup player, Cup computer) {
+	public static boolean checkCall (int amt, int value, Cup player, Cup computer) {
 		int actual=0;
 		for (int j=0; j<player.getAmt(); j++)
 		{
@@ -159,5 +193,45 @@ public class DiceGame {
 		{
 			return false;
 		}
+	}
+	
+	public static boolean validBet (int preAmt, int preValue, int amt, int value)
+	{
+		if (amt>preAmt) return true;
+		else if (amt==preAmt && value>preValue) return true;
+		else return false;
+	}
+	
+	public static boolean validInt(String input)
+	{
+		try
+		{
+			String[] call = input.split(", ");
+			Integer.parseInt(call[0]);
+			Integer.parseInt(call[1]);
+			return true;
+		}
+		catch (Exception e)
+		{
+			return false;
+		}
+	}
+	
+	public static double probability(Cup player, Cup computer, int amt, int value)
+	{
+		double temp = 0;
+		int amtPossess = 0;
+		for (Die die : computer.dice)
+			if (die.getNum()==value)
+				amtPossess++;
+		if (amtPossess>=amt)
+			temp = 1.0;
+		else
+		{
+			int tempAmt = amt-amtPossess;
+			temp = Math.pow(1/6.,tempAmt)*player.dice.size();
+		}
+		
+		return temp;
 	}
 }

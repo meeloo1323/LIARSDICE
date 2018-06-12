@@ -1,0 +1,7 @@
+Changelog
+
+6/11/2018 - Sung-Joon Im
+ - Added limitations to calls. Now you have to bid higher.
+ - Added a loop to continue to prompt for a call until a valid input is given.
+ - Added a rough probability calculator that takes in how many dice of a certain value it has
+ and see how likely it is for a player to have as many dice of that value as there are missing from the call

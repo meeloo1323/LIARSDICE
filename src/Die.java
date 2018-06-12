@@ -3,9 +3,9 @@ import java.lang.Math;
 public class Die {
 	private int number;
 	
-	public Die(int n)
+	public Die()
 	{
-		number=n;
+		number=1;
 	}
 	
 	public void roll()

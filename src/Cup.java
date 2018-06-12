@@ -2,16 +2,24 @@ import java.util.ArrayList;
 
 public class Cup {
 	private String name;
-	private ArrayList<Die> dice;
+	public ArrayList<Die> dice;
 	
 	public Cup()
 	{
 		dice = new ArrayList<Die>(5);
+		for (int i = 0; i < 5; i++)
+		{
+			dice.add(new Die());
+		}
 	}
 	
 	public Cup(String name)
 	{
 		dice = new ArrayList<Die>(5);
+		for (int i = 0; i < 5; i++)
+		{
+			dice.add(new Die());
+		}
 		this.name = name;
 	}
 	
