@@ -226,6 +226,8 @@ public class DiceGame {
 				amtPossess++;
 		if (amtPossess>=amt)
 			temp = 1.0;
+		else if (amt-amtPossess>player.dice.size())
+			return 0;
 		else
 		{
 			int tempAmt = amt-amtPossess;
